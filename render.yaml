@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: crypto-intel-api
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /api/status
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
