@@ -67,7 +67,7 @@ def get_live_ticker_prices() -> dict:
 
     try:
         symbols_param = json.dumps(config.SYMBOLS, separators=(',', ':'))
-        url = f"https://api.binance.com/api/v3/ticker/price?symbols={urllib.parse.quote(symbols_param)}"
+        url = f"{config.BINANCE_REST_BASE}/ticker/price?symbols={urllib.parse.quote(symbols_param)}"
         req = urllib.request.Request(url, headers={"User-Agent": "ZeroCostCryptoAgent/1.0"})
         with urllib.request.urlopen(req, timeout=3) as resp:
             if resp.status == 200:

@@ -32,14 +32,15 @@ from trading.paper_trader import execute_signal, update_positions_with_price
 def _build_stream_url(symbols: List[str], timeframes: List[str]) -> str:
     """
     Binance combined stream URL banata hai.
-    Format: wss://stream.binance.com:9443/stream?streams=btcusdt@kline_1h/ethusdt@kline_1h/...
+    Format: wss://data-stream.binance.vision/stream?streams=btcusdt@kline_1h/...
     """
     streams = []
     for sym in symbols:
         for tf in timeframes:
             stream_name = f"{sym.lower()}@kline_{tf}"
             streams.append(stream_name)
-    return f"wss://stream.binance.com:9443/stream?streams={'/'.join(streams)}"
+    base = config.BINANCE_WS_BASE.replace("/ws", "").rstrip("/")
+    return f"{base}/stream?streams={'/'.join(streams)}"
 
 
 def _on_candle_close(symbol: str, timeframe: str, kline_data: dict) -> None:

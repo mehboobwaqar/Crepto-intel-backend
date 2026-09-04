@@ -18,7 +18,7 @@ SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "LINKUSDT"]
 TIMEFRAMES = ["1h", "4h"]
 DAYS_BACK = 365
 DB_PATH = "crypto_market.db"
-BINANCE_API_URL = "https://api.binance.com/api/v3/klines"
+BINANCE_API_URL = "https://data-api.binance.vision/api/v3/klines"
 # =================================================
 
 def init_database(db_path: str):
