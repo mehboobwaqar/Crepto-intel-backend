@@ -28,7 +28,7 @@ TIMEFRAMES = ["1h", "4h"]
 DAYS_BACK = 365
 
 # ── Binance API ────────────────────────────────────────────────
-BINANCE_REST_BASE = "https://api.binance.com/api/v3"
+BINANCE_REST_BASE = "https://data-api.binance.vision/api/v3"
 BINANCE_KLINES_URL = f"{BINANCE_REST_BASE}/klines"
 API_REQUEST_TIMEOUT = 10          # seconds
 API_RETRY_ATTEMPTS = 3
@@ -76,6 +76,6 @@ API_HOST = "0.0.0.0"
 API_PORT = 8000
 
 # ── WebSocket Streamer ────────────────────────────────────────
-BINANCE_WS_BASE = "wss://stream.binance.com:9443/ws"
+BINANCE_WS_BASE = "wss://data-stream.binance.vision/ws"
 WS_RECONNECT_DELAY = 5           # seconds before reconnect attempt
 WS_MAX_RECONNECT_DELAY = 60      # max backoff delay

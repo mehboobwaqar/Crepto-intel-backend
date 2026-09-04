@@ -3,7 +3,7 @@ services:
     name: crypto-intel-api
     runtime: docker
     plan: free
-    region: oregon
+    region: frankfurt
     healthCheckPath: /api/status
     envVars:
       - key: PYTHONUNBUFFERED
