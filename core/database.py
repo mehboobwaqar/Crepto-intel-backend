@@ -493,3 +493,17 @@ def record_balance_event(conn: sqlite3.Connection, balance: float,
     )
     conn.commit()
 
+
+def reset_trading_account(conn: sqlite3.Connection, initial_balance: float = 10000.0) -> None:
+    """Tamam purani trades, open positions, signals aur balance events ko clean reset karta hai."""
+    conn.execute("DELETE FROM trades;")
+    conn.execute("DELETE FROM positions;")
+    conn.execute("DELETE FROM signals;")
+    conn.execute("DELETE FROM account_ledger;")
+    conn.execute(
+        "INSERT INTO account_ledger (balance, event_type, event_detail) VALUES (?, 'INITIAL_DEPOSIT', 'Fresh Start Balance Reset');",
+        (initial_balance,)
+    )
+    conn.commit()
+
+

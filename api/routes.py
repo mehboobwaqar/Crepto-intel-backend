@@ -14,7 +14,7 @@ from core.database import (
     get_available_pairs, get_candle_count,
     fetch_candles, get_active_signals, get_recent_signals,
     get_open_positions, update_position_price, get_all_trades, get_trade_stats,
-    get_account_balance,
+    get_account_balance, reset_trading_account,
 )
 from analytics.indicators import calculate_ema, calculate_rsi, calculate_atr
 from analytics.market_structure import detect_swing_points, determine_regime
@@ -256,3 +256,21 @@ def list_positions():
     positions = get_open_positions(conn)
     conn.close()
     return {"positions": positions, "count": len(positions)}
+
+
+@router.api_route("/account/reset", methods=["GET", "POST"])
+def reset_account(initial_balance: float = 10000.0):
+    """Wipes all previous trades, positions, signals, and resets account to clean initial balance."""
+    conn = get_connection(str(config.DB_PATH))
+    init_schema(conn)
+    reset_trading_account(conn, initial_balance=initial_balance)
+    conn.close()
+    return {
+        "status": "success",
+        "message": f"Account reset successfully. Balance set to ${initial_balance:,.2f}",
+        "balance": initial_balance,
+        "equity": initial_balance,
+        "total_trades": 0,
+        "total_pnl": 0.0,
+    }
+
