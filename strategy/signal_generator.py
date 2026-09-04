@@ -91,29 +91,35 @@ def _check_atr_filter(atr: float, close: float) -> bool:
 
 def _check_candlestick_rejection(candles: List[Candle], direction: str) -> bool:
     """
-    Price Action Candlestick Rejection Filter:
-    Check karta hai ke EMA20 par rejection wick bani hai ya nahi,
-    taake falling knife ya pump breakout ke aage galat entry na ho.
+    Sniper Grade Price Action Rejection Filter:
+    - Bullish/Bearish Rejection Wick (Lower/Upper wick >= 20%)
+    - OR Bullish/Bearish Engulfing Reversal Pattern
+    Prevents buying into momentum dumps or selling into breakout pumps.
     """
-    if not candles:
+    if not candles or len(candles) < 2:
         return False
     last = candles[-1]
+    prev = candles[-2]
     candle_range = last.high - last.low
     if candle_range <= 0:
         return True
 
+    min_wick_pct = getattr(config, "MIN_REJECTION_WICK_PCT", 0.20)
+
     if direction == "LONG":
-        # Buyers defended EMA20: Lower wick >= 15% of range OR candle closed green
+        # 1. Rejection Pinbar: Lower wick >= 20% of range and bullish close
         lower_wick = min(last.open, last.close) - last.low
-        has_wick = (lower_wick / candle_range) >= 0.15
-        is_green = last.close >= last.open
-        return has_wick or is_green
+        has_wick = (lower_wick / candle_range) >= min_wick_pct and last.close >= last.open
+        # 2. Bullish Engulfing: Previous candle red, current candle engulfs previous body
+        is_engulfing = (prev.close < prev.open) and (last.close > prev.open) and (last.open <= prev.close)
+        return has_wick or is_engulfing
     else:  # SHORT
-        # Sellers rejected EMA20: Upper wick >= 15% of range OR candle closed red
+        # 1. Rejection Pinbar: Upper wick >= 20% of range and bearish close
         upper_wick = last.high - max(last.open, last.close)
-        has_wick = (upper_wick / candle_range) >= 0.15
-        is_red = last.close <= last.open
-        return has_wick or is_red
+        has_wick = (upper_wick / candle_range) >= min_wick_pct and last.close <= last.open
+        # 2. Bearish Engulfing: Previous candle green, current candle engulfs previous body
+        is_engulfing = (prev.close > prev.open) and (last.close < prev.open) and (last.open >= prev.close)
+        return has_wick or is_engulfing
 
 
 def _check_btc_alignment(conn, direction: str, symbol: str) -> tuple:
@@ -122,7 +128,7 @@ def _check_btc_alignment(conn, direction: str, symbol: str) -> tuple:
     Altcoins (ETH, SOL, LINK) Bitcoin ke sath highly correlated hain.
     Agar altcoin SHORT signal de raha ho lekin Bitcoin UPTREND mein ho,
     toh signal REJECT — kyunki Bitcoin ka pump altcoin ko zabardasti
-    upar kheench lega (jaisa LINK ke sath hua).
+    upar kheench lega.
 
     Returns: (is_aligned: bool, btc_trend: str, btc_confidence: str)
     """
@@ -152,10 +158,11 @@ def _check_volume_confirmation(candles: List[Candle], lookback: int = 20) -> tup
     """
     Volume Confirmation Filter (Institutional Money Check):
     Pullback candle ka volume pichli 20 candles ke average volume ke
-    barabar ya usse zyada hona chahiye taake dead/fakeout entry na ho.
+    barabar ya usse zyada hona chahiye (Sniper threshold: >= 1.0x).
 
     Returns: (is_confirmed: bool, vol_ratio: float)
     """
+    min_vol = getattr(config, "MIN_VOLUME_RATIO", 1.0)
     if len(candles) < lookback + 1:
         return True, 1.0
 
@@ -168,8 +175,8 @@ def _check_volume_confirmation(candles: List[Candle], lookback: int = 20) -> tup
     current_vol = candles[-1].volume
     vol_ratio = current_vol / avg_vol
 
-    # Volume at least 75% of average to confirm active market interest
-    return vol_ratio >= 0.75, round(vol_ratio, 2)
+    # Volume at least 100% of 20-period average for high conviction
+    return vol_ratio >= min_vol, round(vol_ratio, 2)
 
 
 def generate_signals_for_symbol(symbol: str) -> List[Signal]:

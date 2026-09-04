@@ -44,8 +44,8 @@ ATR_PERIOD = 14
 # ── Market Structure ──────────────────────────────────────────
 SWING_LOOKBACK = 5     # Pivot detection: kitne bars left & right check karne hain
 
-# ── Strategy Parameters ───────────────────────────────────────
-STRATEGY_NAME = "trend_pullback"
+# ── Strategy Parameters (Sniper Grade) ────────────────────────
+STRATEGY_NAME = "trend_pullback_sniper"
 # Trend filter: 4H timeframe se trend liya jayega
 TREND_TIMEFRAME = "4h"
 # Entry timeframe: 1H par entry signals generate honge
@@ -59,6 +59,12 @@ RSI_SHORT_PULLBACK_HIGH = 60
 ATR_MIN_PCT = 0.3
 # EMA proximity for pullback detection (% distance from EMA20)
 EMA_PULLBACK_TOLERANCE_PCT = 0.5
+# Sniper Filter: Minimum volume ratio vs 20-period average
+MIN_VOLUME_RATIO = 1.0
+# Sniper Filter: Minimum rejection wick (% of candle range)
+MIN_REJECTION_WICK_PCT = 0.20
+# Break-even lock threshold (% distance towards TP1 to lock SL at entry)
+BREAK_EVEN_TRIGGER_RATIO = 0.30
 
 # ── Risk Management ──────────────────────────────────────────
 RISK_PER_TRADE_PCT = 0.5          # 0.5% of account per trade

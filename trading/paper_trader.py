@@ -167,8 +167,8 @@ def update_positions_with_price(symbol: str, current_price: float) -> List[Trade
             closed_trades.append(trade)
         else:
             # ── Trailing Stop-Loss / Break-Even Lock ──────────────────
-            # Jaise hi trade 40% towards TP1 move kare, SL ko Entry price par lock kar do!
-            be_threshold = 0.40
+            # Jaise hi trade 30% towards TP1 move kare, SL ko Entry price par lock kar do!
+            be_threshold = getattr(config, "BREAK_EVEN_TRIGGER_RATIO", 0.30)
             if direction == "LONG":
                 target_dist = tp1 - entry
                 if target_dist > 0 and current_price >= entry + (target_dist * be_threshold) and sl < entry:
