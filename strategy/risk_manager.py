@@ -91,16 +91,20 @@ def calculate_stop_loss(
     buffer = atr_value * config.STOP_LOSS_ATR_BUFFER
 
     if direction == "LONG":
-        if last_swing_low is not None:
-            return round(last_swing_low - buffer, 2)
+        if last_swing_low is not None and last_swing_low < current_price:
+            sl = round(last_swing_low - buffer, 2)
+            # Guard: Stop loss must be strictly below current price
+            return sl if sl < current_price else round(current_price - (atr_value * 1.5), 2)
         else:
-            # Fallback: 2× ATR below current price
-            return round(current_price - (atr_value * 2), 2)
+            # Fallback: 1.5× ATR below current price
+            return round(current_price - (atr_value * 1.5), 2)
     else:  # SHORT
-        if last_swing_high is not None:
-            return round(last_swing_high + buffer, 2)
+        if last_swing_high is not None and last_swing_high > current_price:
+            sl = round(last_swing_high + buffer, 2)
+            # Guard: Stop loss must be strictly above current price
+            return sl if sl > current_price else round(current_price + (atr_value * 1.5), 2)
         else:
-            return round(current_price + (atr_value * 2), 2)
+            return round(current_price + (atr_value * 1.5), 2)
 
 
 def validate_risk(

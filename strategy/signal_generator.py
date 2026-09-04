@@ -238,11 +238,11 @@ def generate_signals_for_symbol(symbol: str) -> List[Signal]:
         conn.close()
         return signals
 
-    # Condition 1: EMA alignment
-    if allowed_direction == "LONG" and close < ema_slow:
+    # Condition 1: EMA alignment (Both price and fast EMA must align with trend direction)
+    if allowed_direction == "LONG" and (close < ema_slow or ema_fast < ema_slow):
         conn.close()
         return signals
-    if allowed_direction == "SHORT" and close > ema_slow:
+    if allowed_direction == "SHORT" and (close > ema_slow or ema_fast > ema_slow):
         conn.close()
         return signals
 
